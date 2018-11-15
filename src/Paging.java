@@ -1,11 +1,12 @@
 import java.io.*;
+import java.util.*;
 
 public class Paging {
 
     private int clock;
     private Job currentJob;
     private String filePath = "data/job_data_1.csv";
-    private Job[] jobs = new Job[16];
+    private ArrayList<Job> jobs = new ArrayList<>();
 
     public Paging() {
         this.clock = 0;
@@ -25,22 +26,21 @@ public class Paging {
         try
         {
             //Contains the line
-            String line = "";
+            String line;
             //Create the file reader
             fileReader = new BufferedReader(new FileReader(filePath));
-            int i = 0;
             //Read the file line by line
             while ((line = fileReader.readLine()) != null)
             {
                 //Get all tokens available in line
                 String[] tokens = line.split(DELIMITER);
+                //get the job number
                 int jobNum = Integer.parseInt(tokens[0]);
+                //get the job reference.
                 int jobPage = Integer.parseInt(tokens[1]);
                 //Add a new point with the attributes from the file
-                jobs[i] = new Job(jobNum, jobPage);
-                i++;
+                jobs.add(new Job(jobNum, jobPage));
             }
-            //Return the set back
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -53,8 +53,17 @@ public class Paging {
                 e.printStackTrace();
             }
         }
-
     }
+
+
+
+
+
+
+
+
+
+
 
 
 }
