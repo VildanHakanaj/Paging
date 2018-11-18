@@ -3,180 +3,186 @@ import java.util.*;
 
 public class Paging {
 
-    //region Variable declaration.
-    private int clock;
-    private Job currentJob;
-    private String filePath = "data/job_data_1.csv";
-    private ArrayList<Job> jobs = new ArrayList<>();
-    private int firstPageLoad;
-    private Job[] swapMem;
-    private int pageHits;
-    private Job[] physicalMemory;
-    //endregion
+  //region Variable declaration.
 
-    //region Constant Declarations
-    private final int PHYSICAL_MEMORY_SIZE = 10;
-    private final int SWAP_MEMORY_SIZE = 15;
-    //endregion
+  //region CSV file
+  private String filePath = "data/job_data_1.csv";
+  private ArrayList<Job> jobs = new ArrayList<>();
+  //endregion
 
-    public Paging() {
-        this.swapMem = new Job[SWAP_MEMORY_SIZE];
-        this.physicalMemory = new Job[PHYSICAL_MEMORY_SIZE];
+  //region MEMORY
+  private Job[] swapMem;                              //Swap memory
+  private Job[] physicalMemory;                       //Physical Memory
+  //endregion
+
+  //region Simulation variables
+  private int clock;
+  private Job currentJob;
+  private int pageHits;                               //Number of page hits
+  private int firstLoad;                              //Counter for the first loaded pages
+  //endregion
+  //endregion
+
+  //region Constant Declarations
+  private final int TERMINATE = -999;
+  private final int PHYSICAL_MEMORY_SIZE = 10;
+  private final int SWAP_MEMORY_SIZE = 15;
+  //endregion
+
+  public Paging() {
+    this.swapMem = new Job[SWAP_MEMORY_SIZE];
+    this.physicalMemory = new Job[PHYSICAL_MEMORY_SIZE];
+  }
+  //region Main Methods
+  public void runSimulation(){
+    retriveJobs();
+    leastRecentUsed();
+  }
+
+  private void retriveJobs(){
+    //Input file which needs to be parsed
+    BufferedReader fileReader = null;                                         //Buffer to read the file
+
+    //Delimiter used in CSV file
+    final String DELIMITER = ",";
+    try
+    {
+      //Contains the line
+      String line;
+      //Create the file reader
+      fileReader = new BufferedReader(new FileReader(filePath));
+      //Read the file line by line
+      while ((line = fileReader.readLine()) != null)
+      {
+        //Get all tokens available in line
+        String[] tokens = line.split(DELIMITER);
+        //get the job number
+        int jobPage = Integer.parseInt(tokens[0]);
+        //get the job reference.
+        int jobNum = Integer.parseInt(tokens[1]);
+        //Add a new point with the attributes from the file
+        jobs.add(new Job(jobNum, jobPage));
+      }
+      System.out.println();
     }
-    //region Main Methods
-    public void runSimulation(){
-        retriveJobs();
-        leastRecentUsed();
+    catch (Exception e) {
+      e.printStackTrace();
     }
-
-    private void retriveJobs(){
-        //Input file which needs to be parsed
-        BufferedReader fileReader = null;                                         //Buffer to read the file
-
-        //Delimiter used in CSV file
-        final String DELIMITER = ",";
-        try
-        {
-            //Contains the line
-            String line;
-            //Create the file reader
-            fileReader = new BufferedReader(new FileReader(filePath));
-            //Read the file line by line
-            while ((line = fileReader.readLine()) != null)
-            {
-                //Get all tokens available in line
-                String[] tokens = line.split(DELIMITER);
-                //get the job number
-                int jobNum = Integer.parseInt(tokens[0]);
-                //get the job reference.
-                int jobPage = Integer.parseInt(tokens[1]);
-                //Add a new point with the attributes from the file
-                jobs.add(new Job(jobNum, jobPage));
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        finally
-        {
-            try {
-                fileReader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    finally
+    {
+      try {
+        fileReader.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
+  }
 
-    private void leastRecentUsed(){
-      resetVar();                                               //Restore the variables
+  private void leastRecentUsed(){
+    resetVar();                                            //Restore the variables
 
-      for (int i = 1; i < jobs.size(); i++) {
-        currentJob = jobs.remove(0);                     //Get the jobs
-        for (int j = 0; j < physicalMemory.length; j++) {
+    for (int i = 1; i < jobs.size(); i++) {
+      currentJob = jobs.remove(0);                 //Get the page
 
-          if(pageHit()){                                        //If the page already exists
+      //Check if the job is finished.
+      if(currentJob.getJobPageRef() == TERMINATE){        //Check if the page is terminated
+        deleteAll(currentJob.getJobNum());                //Delete all the job with the current job number
+        break;                                            //Move to the next job
+      }
 
-            pageHits++;
-            // TODO: Should I update the old job with the new job reference?
-            // TODO: Should I update the job time here
-            currentJob = null;
-            break;
-          }else{                                                //Else find if there is room to fit it
-            int physicalIndex = findEmptySpot(physicalMemory);  //Find a spot in the physical Memory
-            /*if(currentJob.getJobPageRef() == -999){
-
-              deleteAll(currentJob.getJobNum());
-
-            }else*/ if(physicalIndex >= 0){
-
-              physicalMemory[physicalIndex] = currentJob;       //If there is room store the job
-              break;
-
+      //Check if there is a page hit
+      if(pageHit()){                                        //If the page already exists
+        pageHits++;
+        break;                                              //Move to the next job
+      }else{                                                //Else check if its in swap
+        int swapIndex = findInSwap(currentJob.getJobPageRef());
+        if(swapIndex >= 0){                                 //The job is in swap memory
+          /*Find the least recent used job*/
+          System.out.println("The job is in swap memory");
+          System.out.println("Swapping the job with the least recent one");
+        }else{                                              //Its not in swap memory so try and swap the least recent out.
+          int physicalIndex = findEmptySpot(physicalMemory);               //Find an empty spot in the swap
+          if (physicalIndex >= 0) {                                         //Check if there is any spot
+            physicalMemory[physicalIndex] = currentJob;                    //Add the job in the memory
+          }else{                                                           //Else check the swap
+            swapIndex = findEmptySpot(swapMem);                            //Find a spot in swap
+            if(swapIndex >= 0){                                            //There is an empty spot in swap memory.
+              swapMem[swapIndex] = currentJob;
             }else{
-
-              int swapIndex = findEmptySpot(swapMem);           //Find a spot in the swap memory
-
-              if(swapIndex == -1){
-
-                currentJob = null;                              //If there is no room then delete the job
-                System.out.println("Error: Insufficent memory for job: " + currentJob.getJobNum());
-
-              }else{
-                //TODO: find the least accessed page and put it in swap memory
-                /*
-                * IDEA 1: Keep the job saved into a temp variable called the least access one.
-                *         update it every time a swap happens or a job finishes.
-                * IDEA 2: Have the job contain a time when they first were put in the physical memory.
-                * 
-                * */
-                swapMem[i] = currentJob;                        //insert the job into the swap memory
-              }
+              /*Don't know what to do*/
             }
           }
         }
       }
     }
-    //endregion
+  }
+  //endregion
 
-    //region Helper Methods
-  
-    /*
-    * Reinitialize the variables
-    * for each algorithm
-    * */
-    private void resetVar(){
-        this.pageHits = 0;
-        this.clock = 0;
-        this.currentJob = null;
-        this.firstPageLoad = 0;
-    }
+  //region Helper Methods
 
-    /*
-    * Loops through the physical array
-    * and find if the page exists already.
-    *
-    * @return true ==> if the page already is there
-    * @return flase ==> if the page doesn't exits;
-    * */
-    private boolean pageHit(){
-      for (int i = 0; i < physicalMemory.length; i++)
-        if(physicalMemory[i] != null && currentJob.getJobNum() == physicalMemory[i].getJobNum()) {
-          physicalMemory[i] = currentJob;                                         //Change the job with the new one
-          return true;
-        }
-      return false;
-    }
+  /*
+   * Reinitialize the variables
+   * for each algorithm
+   * */
+  private void resetVar(){
+    this.pageHits = 0;
+    this.clock = 0;
+    this.currentJob = null;
 
-    /*
-    * Finds and empty spot on the give array
-    *
-    * @param array => The array to look in
-    * @return i ==> the index where the spot is free
-    * @return -1 ==> so we know that the array is full;
-    * */
-    private int findEmptySpot(Job[] array){
-      for (int i = 0; i < array.length; i++)
-        if (array[i] == null) return i;
-      return -1;
-    }
+  }
 
-    private void deleteAll(int jobRef){
-      int i = 0;
-      for (i = 0; i < physicalMemory.length; i++) {
-        if(physicalMemory[i].getJobNum() == jobRef){
-          physicalMemory[i] = null;
-        }
-        if(swapMem[i].getJobNum() == jobRef){
-          physicalMemory[i] = null;
-        }
+  /*
+   * Scans the physical array
+   * and find if the page exists already.
+   *
+   * @return true  ==> if the page already is there
+   * @return false ==> if the page doesn't exits;
+   * */
+  private boolean pageHit(){
+    for (int i = 0; i < physicalMemory.length; i++)                 //Scan the array to find the job
+      if(physicalMemory[i] != null && currentJob.getJobPageRef() == physicalMemory[i].getJobPageRef()) {
+        currentJob.setTimeStamp(clock);
+        clock++;
+        physicalMemory[i] = currentJob;                              //Change the job with the new one
+        return true;
       }
+    return false;
+  }
 
-      for(i = i; i < swapMem.length; i++){
-        if(swapMem[i].getJobNum() == jobRef){
-          swapMem[i] = null;
-        }
+  private int findInSwap(int jobNumbererence){
+    for (int i = 0; i < swapMem.length; i++) {
+      if(swapMem[i] != null && swapMem[i].getJobPageRef() == jobNumbererence){
+        return i;
       }
     }
+    return -1;
+  }
+  /*
+   * Finds and empty spot on the give array
+   *
+   * @param array => The array to look in
+   * @return i ==> the index where the spot is free
+   * @return -1 ==> so we know that the array is full;
+   * */
+  private int findEmptySpot(Job[] array){
+    for (int i = 0; i < array.length; i++)
+      if (array[i] == null) return i;
+    return -1;
+  }
 
-    //endregion
+  private void deleteAll(int jobNumber){
+    int i = 0;
+    //Remove job references from swap space and the physical space;
+    for (i = 0; i < physicalMemory.length; i++) {
+      if(physicalMemory[i].getJobNum() == jobNumber) physicalMemory[i] = null;
+      if(swapMem[i].getJobNum() == jobNumber) physicalMemory[i] = null;
+    }
+    //Remove all the instances of the job from the swap memory
+    for(i = i; i < swapMem.length; i++){
+      if(swapMem[i].getJobNum() == jobNumber){
+        swapMem[i] = null;
+      }
+    }
+  }
+  //endregion
 }
