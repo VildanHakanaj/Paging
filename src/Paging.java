@@ -180,6 +180,13 @@ public class Paging {
     return -1;
   }
 
+  /*
+  * Will loop through both arrays and will find if any
+  * references of the jobs exist and will delete them from it.
+  *
+  * @param jobNumber ==> The searching key
+  * @return void
+  * */
   private void deleteAll(int jobNumber){
     int i = 0;
     //Remove job references from swap space and the physical space;
@@ -198,12 +205,15 @@ public class Paging {
   /*
   * This method will find the least recent one in the physical
   * memory and will swap it with the job in swap memory.
+  *
+  * @param int swapIndex ==> the index to indicate where the job is.
+  * @return void
   * */
   private void lru(int swapIndex){
-    Job leastRecent = physicalMemory[0];
+    Job leastRecent = physicalMemory[0];                                          //Get the first job in the physical memory;
     int pos = 0;
 
-    for (int i = 1; i < physicalMemory.length; i++) {
+    for (int i = 1; i < physicalMemory.length; i++) {                            //Scan the physical memory to find the least recent one
       if(physicalMemory[i] != null && physicalMemory[i].getTimeStamp() < leastRecent.getTimeStamp()){
         leastRecent = physicalMemory[i];
         pos = i;
@@ -211,7 +221,7 @@ public class Paging {
       }
     }
 
-    physicalMemory[pos] = swapMem[swapIndex];
+    physicalMemory[pos] = swapMem[swapIndex];                                    //swap the jobs with each other.
     swapMem[swapIndex] = leastRecent;
 
   }
