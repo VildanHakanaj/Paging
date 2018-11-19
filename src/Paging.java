@@ -79,33 +79,34 @@ public class Paging {
   }
 
   private void leastRecentUsed(){
-    resetVar();                                            //Restore the variables
+    resetVar();                                                           //Restore the variables
 
-    for (int i = 1; i < jobs.size(); i++) {
-      currentJob = jobs.remove(0);                 //Get the page
+    for (int i = 1; i < jobs.size(); i++) {                               //Loop through the jobs retrieved from the csv file
+      currentJob = jobs.remove(0);                                //Get the job from the array
 
-      //Check if the job is finished.
-      if(currentJob.getJobPageRef() == TERMINATE){        //Check if the page is terminated
-        deleteAll(currentJob.getJobNum());                //Delete all the job with the current job number
-        break;                                            //Move to the next job
+      if(currentJob.getJobPageRef() == TERMINATE){                        //Check if the page is terminated
+        deleteAll(currentJob.getJobNum());                                //Delete all the job with the current job number
       }
 
+
+      /*TODO: Should i update the job or just keep the old one and add the new reference job ???? */
+
       //Check if there is a page hit
-      if(pageHit()){                                        //If the page already exists
+      if(pageHit()){                                                      //If the page already exists
         pageHits++;
-        break;                                              //Move to the next job
-      }else{                                                //Else check if its in swap
+      }else{                                                              //Else check if its in swap
         int swapIndex = findInSwap(currentJob.getJobPageRef());
-        if(swapIndex >= 0){                                 //The job is in swap memory
+        if(swapIndex >= 0){                                               //The job is in swap memory
           /*Find the least recent used job*/
           System.out.println("The job is in swap memory");
+          /*Here is where i pretend to do the swapping with the least recent one*/
           System.out.println("Swapping the job with the least recent one");
-        }else{                                              //Its not in swap memory so try and swap the least recent out.
+        }else{                                                             //Its not in swap memory so try and swap the least recent out.
           int physicalIndex = findEmptySpot(physicalMemory);               //Find an empty spot in the swap
-          if (physicalIndex >= 0) {                                         //Check if there is any spot
-            physicalMemory[physicalIndex] = currentJob;                    //Add the job in the memory
-          }else{                                                           //Else check the swap
-            swapIndex = findEmptySpot(swapMem);                            //Find a spot in swap
+          if (physicalIndex >= 0) {                                        //Check if there is any spot
+            physicalMemory[physicalIndex] = currentJob;                    //Add the job in the physical memory
+          }else{                                                           //Else check the swap memory
+            swapIndex = findEmptySpot(swapMem);                            //Find a spot in swap memory
             if(swapIndex >= 0){                                            //There is an empty spot in swap memory.
               swapMem[swapIndex] = currentJob;
             }else{
@@ -141,18 +142,30 @@ public class Paging {
   private boolean pageHit(){
     for (int i = 0; i < physicalMemory.length; i++)                 //Scan the array to find the job
       if(physicalMemory[i] != null && currentJob.getJobPageRef() == physicalMemory[i].getJobPageRef()) {
-        currentJob.setTimeStamp(clock);
         clock++;
-        physicalMemory[i] = currentJob;                              //Change the job with the new one
+        currentJob.setTimeStamp(clock);
+
+
+        //        physicalMemory[i] = currentJob;                              //Change the job with the new one
+
         return true;
       }
     return false;
   }
 
-  private int findInSwap(int jobNumbererence){
+  /*
+  * Scans the swap memory array
+  * tries to find the job that contains
+  * the given job reference number
+  *
+  * @param int jobNumReference  ==> The reference number we are looking for in swap memory
+  * @return i   ==> the index where the job is. If found.
+  * @return -1  ==> If the job doesn't exist in swap memory.
+  * */
+  private int findInSwap(int jobNumReference){
     for (int i = 0; i < swapMem.length; i++) {
-      if(swapMem[i] != null && swapMem[i].getJobPageRef() == jobNumbererence){
-        return i;
+      if(swapMem[i] != null && swapMem[i].getJobPageRef() == jobNumReference){
+        return i    ;
       }
     }
     return -1;
