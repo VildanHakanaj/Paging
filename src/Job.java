@@ -1,5 +1,4 @@
 public class Job {
-
     private int jobNum;
     private int jobPageRef;
     private int timeStamp;
