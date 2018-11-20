@@ -6,8 +6,8 @@ public class Paging {
   //region Variable declaration.
 
   //region CSV file
-  private String filePath = "data/job_data_1.csv";
-  private ArrayList<Job> jobs = new ArrayList<>();
+  private String filePath = "data/job_data_1.csv";    //The path to the file
+  private ArrayList<Job> jobs = new ArrayList<>();    //Contains the jobs we get from the csv file
   //endregion
 
   //region MEMORY
@@ -16,22 +16,24 @@ public class Paging {
   //endregion
 
   //region Simulation variables
-  private int clock;
-  private Job currentJob;
+  private int clock;                                  //The simulation clock
+  private Job currentJob;                             //Contains the current job we are working on
   private int pageHits;                               //Number of page hits
   private int firstLoad;                              //Counter for the first loaded pages
   //endregion
   //endregion
 
   //region Constant Declarations
-  private final int TERMINATE = -999;
-  private final int PHYSICAL_MEMORY_SIZE = 10;
-  private final int SWAP_MEMORY_SIZE = 15;
+  private final int TERMINATE = -999;                 //To check if the job is finished
+  private final int PHYSICAL_MEMORY_SIZE = 10;        //The size of the array
+  private final int SWAP_MEMORY_SIZE = 15;            //The size of the array
   //endregion
 
   public Paging() {
+
     this.swapMem = new Job[SWAP_MEMORY_SIZE];
     this.physicalMemory = new Job[PHYSICAL_MEMORY_SIZE];
+
   }
 
   //region Main Methods
