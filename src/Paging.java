@@ -90,7 +90,7 @@ public class Paging {
       currentJob = jobs.remove(0);                                 //Get the job from the array
 
       if (currentJob.getJobPageRef() == TERMINATE) {                             //Check if the page is terminated
-        System.out.println("Just deleted the job with reference: " + currentJob.getJobPageRef());
+        System.out.println("Just deleted the job with Number: " + currentJob.getJobNum());
         deleteAll(currentJob.getJobNum());                                 //Delete all the job with the current job number
 
       } else if (pageHit()) {                                                 //Check if the page already exists
