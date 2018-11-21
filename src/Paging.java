@@ -271,5 +271,16 @@ public class Paging {
     swapMem[swapIndex] = leastRecent;
 
   }
+  /*
+  * This method will randomly chose
+  * a job from the physical memory
+  * and will swap it with the chosen
+  * swap memory job
+  * */
+  private void randomSwap(){
+    currentJob.setTimeStamp(clock);
+    /*Swap with a random job*/
+  }
+
   //endregion
 }
