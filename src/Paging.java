@@ -105,7 +105,7 @@ public class Paging {
         if (swapIndex >= 0) {                                               //The job is in swap memory
           System.out.println("The job is in swap memory");
 
-          // FIXME: 2018-11-21 Make sure i check that the swap has space for the swaping to happen
+          // FIXME: 2018-11-21 Make sure i check that the swap has space for the swapping to happen
           /*Find the least recent used job*/
           lru(swapIndex);                                                    //Find the least recent used and swap it with the swap position.
           System.out.println("Swapping the job with the least recent one");
