@@ -105,10 +105,6 @@ public class Paging {
         if (swapIndex >= 0) {                                               //The job is in swap memory
           System.out.println("The job is in swap memory");
 
-          // FIXME: 2018-11-21 Make sure i check that the swap has space for the swapping to happen
-          // TODO: 2018-11-21 Check if there is space in the physical memory before swapping.
-          // FIXME: 2018-11-21 Add a way to chose between LRU or Random swapping
-
           /*Find the least recent used job*/
           lru(swapIndex);                                                    //Find the least recent used and swap it with the swap position.
           System.out.println("Swapping the job with the least recent one");
@@ -248,8 +244,6 @@ public class Paging {
   * @param int swapIndex ==> the index to indicate where the job is.
   * @return void
   * */
-
-  // FIXME: 2018-11-21 Make sure i check that the swap has space for the swapping to happen
   private void lru(int swapIndex){
 
     Job leastRecent = physicalMemory[0];                                          //Get the first job in the physical memory;
@@ -283,7 +277,6 @@ public class Paging {
   * @param int swapIndex ==> The index where the job in swap memory is
   * @return void
   * */
-  // FIXME: 2018-11-21 Make sure i check that the swap has space for the swaping to happen 
   private void randomSwap(int swapIndex){
     Random rnd = new Random();
     currentJob.setTimeStamp(clock);

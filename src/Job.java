@@ -2,11 +2,11 @@ public class Job {
     private int jobNum;
     private int jobPageRef;
     private int timeStamp;
+
     public Job(int jobNum, int jobPageRef) {
         this.jobNum = jobNum;
         this.jobPageRef = jobPageRef;
         this.timeStamp = 0;
-
     }
 
     public int getJobNum() {
