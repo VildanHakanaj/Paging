@@ -103,9 +103,9 @@ public class Paging {
         int swapIndex = findInSwap(currentJob.getJobPageRef());             //Find if job is in swap memory already
 
         if (swapIndex >= 0) {                                               //The job is in swap memory
-          /*Find the least recent used job*/
           System.out.println("The job is in swap memory");
 
+          /*Find the least recent used job*/
           lru(swapIndex);                                                    //Find the least recent used and swap it with the swap position.
           System.out.println("Swapping the job with the least recent one");
 
@@ -113,7 +113,8 @@ public class Paging {
           int physicalIndex = findEmptySpot(physicalMemory);                 //Find an empty spot in the physical memory
 
           if (physicalIndex >= 0) {                                          //Check if there is any spot
-
+            clock++;
+            currentJob.setTimeStamp(clock);
             physicalMemory[physicalIndex] = currentJob;                      //Add the job in the physical memory
             System.out.println("Just placed Job reference: " + currentJob.getJobPageRef() + " into physical memory");
 
@@ -123,11 +124,14 @@ public class Paging {
 
             if (swapIndex >= 0) {                                            //There is an empty spot in swap memory.
 
+              clock++;
+              currentJob.setTimeStamp(clock);
               swapMem[swapIndex] = currentJob;
               System.out.println("Just inserted the job with reference: " + currentJob.getJobPageRef() + " into swap memory");
 
             } else {
 
+              clock++;
               System.out.println("Error: Memory insufficient" + currentJob.getJobPageRef());
 
             }
@@ -167,13 +171,9 @@ public class Paging {
         physicalMemory[i].setTimeStamp(clock);                      //Update the timestamp of the jobs
 
         return true;
-
       }
-
     }
-
     return false;
-
   }
 
   /*
@@ -191,7 +191,6 @@ public class Paging {
       if (swapMem[i] != null && swapMem[i].getJobPageRef() == jobNumReference) {
 
         return i;
-
       }
     }
     return -1;
@@ -228,14 +227,12 @@ public class Paging {
       if(physicalMemory[i].getJobNum() == jobNumber) physicalMemory[i] = null;
 
       if(swapMem[i].getJobNum() == jobNumber) physicalMemory[i] = null;
-
     }
     //Remove all the instances of the job from the swap memory
     for(i = i; i < swapMem.length; i++){
       if(swapMem[i].getJobNum() == jobNumber){
-
+        clock++;
         swapMem[i] = null;
-
       }
     }
   }
@@ -276,10 +273,20 @@ public class Paging {
   * a job from the physical memory
   * and will swap it with the chosen
   * swap memory job
+  *
+  * @param int swapIndex ==> The index where the job in swap memory is
+  * @return void
   * */
-  private void randomSwap(){
+  private void randomSwap(int swapIndex){
+    Random rnd = new Random();
     currentJob.setTimeStamp(clock);
-    /*Swap with a random job*/
+
+    int randomIndex = rnd.nextInt(physicalMemory.length);
+    Job temp = physicalMemory[randomIndex];
+
+    physicalMemory[randomIndex] = swapMem[swapIndex];
+    swapMem[swapIndex] = temp;
+
   }
 
   //endregion
