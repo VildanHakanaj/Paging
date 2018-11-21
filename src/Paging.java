@@ -6,7 +6,7 @@ public class Paging {
   //region Variable declaration.
 
   //region CSV file
-  private String filePath = "data/job_data_1.csv";    //The path to the file
+  private String filePath = "data/job_data_4.csv";    //The path to the file
   private ArrayList<Job> jobs = new ArrayList<>();    //Contains the jobs we get from the csv file
   //endregion
 
@@ -85,50 +85,52 @@ public class Paging {
   private void leastRecentUsed(){
     resetVar();                                                             //Restore the variables
 
-    for (int i = 1; i < jobs.size(); i++) {                                //Loop through the jobs retrieved from the csv file
+    while(jobs.size() > 0)
+    /*for (int i = 1; i < jobs.size(); i++)*/ {                                //Loop through the jobs retrieved from the csv file
       currentJob = jobs.remove(0);                                 //Get the job from the array
 
-      if (currentJob.getJobNum() == TERMINATE) {                             //Check if the page is terminated
-
+      if (currentJob.getJobPageRef() == TERMINATE) {                             //Check if the page is terminated
+        System.out.println("Just deleted the job with reference: " + currentJob.getJobPageRef());
         deleteAll(currentJob.getJobNum());                                 //Delete all the job with the current job number
 
       } else if (pageHit()) {                                                 //Check if the page already exists
 
         /*TODO: Should i update the job or just keep the old one and add the new reference job ???? */
         pageHits++;
-
+        System.out.println("Page hit: " + currentJob.getJobPageRef());
       } else {                                                              //Else check if its in swap
 
-        int swapIndex = findInSwap(currentJob.getJobPageRef());           //Find if job is in swap memory already
+        int swapIndex = findInSwap(currentJob.getJobPageRef());             //Find if job is in swap memory already
 
         if (swapIndex >= 0) {                                               //The job is in swap memory
           /*Find the least recent used job*/
           System.out.println("The job is in swap memory");
 
-          lru(swapIndex);                                                 //Find the least recent used and swap it with the swap position.
+          lru(swapIndex);                                                    //Find the least recent used and swap it with the swap position.
           System.out.println("Swapping the job with the least recent one");
 
         } else {                                                             //Its not in swap memory so try and swap the least recent out.
-          int physicalIndex = findEmptySpot(physicalMemory);               //Find an empty spot in the physical memory
+          int physicalIndex = findEmptySpot(physicalMemory);                 //Find an empty spot in the physical memory
 
-          if (physicalIndex >= 0) {                                        //Check if there is any spot
+          if (physicalIndex >= 0) {                                          //Check if there is any spot
 
-            physicalMemory[physicalIndex] = currentJob;                    //Add the job in the physical memory
+            physicalMemory[physicalIndex] = currentJob;                      //Add the job in the physical memory
+            System.out.println("Just placed Job reference: " + currentJob.getJobPageRef() + " into physical memory");
 
           } else {                                                           //Else check the swap memory
 
-            swapIndex = findEmptySpot(swapMem);                            //Find a spot in swap memory
+            swapIndex = findEmptySpot(swapMem);                              //Find a spot in swap memory
 
             if (swapIndex >= 0) {                                            //There is an empty spot in swap memory.
 
               swapMem[swapIndex] = currentJob;
+              System.out.println("Just inserted the job with reference: " + currentJob.getJobPageRef() + " into swap memory");
 
             } else {
 
               System.out.println("Error: Memory insufficient" + currentJob.getJobPageRef());
 
             }
-
           }
         }
       }
