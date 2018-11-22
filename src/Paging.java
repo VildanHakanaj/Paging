@@ -8,6 +8,7 @@ public class Paging {
   //region CSV file
   private String filePath = "data/job_data_4.csv";    //The path to the file
   private ArrayList<Job> jobs = new ArrayList<>();    //Contains the jobs we get from the csv file
+
   //endregion
 
   //region MEMORY
@@ -20,6 +21,7 @@ public class Paging {
   private Job currentJob;                             //Contains the current job we are working on
   private int pageHits;                               //Number of page hits
   private int firstLoad;                              //Counter for the first loaded pages
+  private ArrayList<Integer> badJobs = new ArrayList<>(); //Contains all the jobs that have been terminated.
   //endregion
   //endregion
 
@@ -82,32 +84,40 @@ public class Paging {
     }
   }
 
+  // TODO: 2018-11-21 Add an array to keep track of the bad jobs
   private void leastRecentUsed(){
-    resetVar();                                                             //Restore the variables
+    resetVar();                                                             //Restore the variables for the algorithm
 
     while(jobs.size() > 0)
-    /*for (int i = 1; i < jobs.size(); i++)*/ {                                //Loop through the jobs retrieved from the csv file
-      currentJob = jobs.remove(0);                                 //Get the job from the array
+      /*for (int i = 1; i < jobs.size(); i++)*/ {                            //Loop through the jobs retrieved from the csv file
+      currentJob = jobs.remove(0);                                   //Get the job from the array
 
-      if (currentJob.getJobPageRef() == TERMINATE) {                             //Check if the page is terminated
+      if(isBadJob(currentJob.getJobNum())){                                 //Check if the job has been deleted already.
+
+        System.out.println("Job: " + currentJob.getJobNum() + " is a bad job so it will not be processed");
+
+      }else if (currentJob.getJobPageRef() == TERMINATE) {                   //Check if the page is terminated
+
         System.out.println("Just deleted the job with Number: " + currentJob.getJobNum());
-        deleteAll(currentJob.getJobNum());                                 //Delete all the job with the current job number
+
+        //Also adds the number to the bad jobs array
+        deleteAll(currentJob.getJobNum());                                    //Delete all the job with the current job number
 
       } else if (pageHit()) {                                                 //Check if the page already exists
 
-        /*TODO: Should i update the job or just keep the old one and add the new reference job ???? */
         pageHits++;
         System.out.println("Page hit: " + currentJob.getJobPageRef());
+
       } else {                                                              //Else check if its in swap
 
         int swapIndex = findInSwap(currentJob.getJobPageRef());             //Find if job is in swap memory already
 
         if (swapIndex >= 0) {                                               //The job is in swap memory
           System.out.println("The job is in swap memory");
-
+          // TODO: 2018-11-21 if the job there is no space than kill the job and add the Job number to the bad array.
           // FIXME: 2018-11-21 Make sure i check that the swap has space for the swapping to happen
           // TODO: 2018-11-21 Check if there is space in the physical memory before swapping.
-          // FIXME: 2018-11-21 Add a way to chose between LRU or Random swapping
+          // TODO: 2018-11-21 Add a way to chose between LRU or Random swapping
 
           /*Find the least recent used job*/
           lru(swapIndex);                                                    //Find the least recent used and swap it with the swap position.
@@ -207,22 +217,19 @@ public class Paging {
    * @return -1   ==> so we know that the array is full;
    * */
   private int findEmptySpot(Job[] array){
-
     for (int i = 0; i < array.length; i++)
-
       if (array[i] == null) return i;
-
     return -1;
 
   }
 
   /*
-  * Will loop through both arrays and will find if any
-  * references of the jobs exist and will delete them from it.
-  *
-  * @param jobNumber ==> The searching key
-  * @return void
-  * */
+   * Will loop through both arrays and will find if any
+   * references of the jobs exist and will delete them from it.
+   *
+   * @param jobNumber ==> The searching key
+   * @return void
+   * */
   private void deleteAll(int jobNumber){
     int i = 0;
     //Remove job references from swap space and the physical space;
@@ -239,50 +246,60 @@ public class Paging {
         swapMem[i] = null;
       }
     }
+
+    badJobs.add(jobNumber);
   }
 
   /*
-  * This method will find the least recent one in the physical
-  * memory and will swap it with the job in swap memory.
-  *
-  * @param int swapIndex ==> the index to indicate where the job is.
-  * @return void
-  * */
+   *This method will first check if there is
+   * empty spots in the swap memory to swap the
+   * physical job into it
+   * if there it it places the job from physical to swap memory
+   * and moves the swap job to the physical one
+   *
+   * if there is no room in swap than it kills
+   * the jobs
+   *
+   * @param int swapIndex ==> the index to indicate where the job is.
+   * @return void
+   * */
 
   // FIXME: 2018-11-21 Make sure i check that the swap has space for the swapping to happen
   private void lru(int swapIndex){
 
     Job leastRecent = physicalMemory[0];                                          //Get the first job in the physical memory;
+    int physicalIndex = 0;                                                        //The index of the lru job
+    int empty = findEmptySpot(swapMem);                                           //Get the empty position in the swap space if the is one
 
-    int pos = 0;
+    if(empty >= 0){                                                               //Check if the swap has room
+      for (int i = 1; i < physicalMemory.length; i++) {                           //Scan the physical memory to find the least recent one
 
-    for (int i = 1; i < physicalMemory.length; i++) {                            //Scan the physical memory to find the least recent one
+        //Check for the least recent used one
+        if(physicalMemory[i] != null && physicalMemory[i].getTimeStamp() < leastRecent.getTimeStamp()){
 
-      if(physicalMemory[i] != null && physicalMemory[i].getTimeStamp() < leastRecent.getTimeStamp()){
+          leastRecent = physicalMemory[i];      //Store it in a variable
+          physicalIndex = i;                    //Get the position of that job
 
-        leastRecent = physicalMemory[i];
-
-        pos = i;
-
-        break;
-
+          break;
+        }
       }
+      //Swap the jobs
+      swapMem[empty] = physicalMemory[physicalIndex];
+      physicalMemory[physicalIndex] = swapMem[swapIndex];
+    }else{
+
+      deleteAll(swapMem[swapIndex].getJobNum());
     }
-
-    physicalMemory[pos] = swapMem[swapIndex];                                    //swap the jobs with each other.
-
-    swapMem[swapIndex] = leastRecent;
-
   }
   /*
-  * This method will randomly chose
-  * a job from the physical memory
-  * and will swap it with the chosen
-  * swap memory job
-  *
-  * @param int swapIndex ==> The index where the job in swap memory is
-  * @return void
-  * */
+   * This method will randomly chose
+   * a job from the physical memory
+   * and will swap it with the chosen
+   * swap memory job
+   *
+   * @param int swapIndex ==> The index where the job in swap memory is
+   * @return void
+   * */
   // FIXME: 2018-11-21 Make sure i check that the swap has space for the swaping to happen 
   private void randomSwap(int swapIndex){
     Random rnd = new Random();
@@ -294,6 +311,21 @@ public class Paging {
     physicalMemory[randomIndex] = swapMem[swapIndex];
     swapMem[swapIndex] = temp;
 
+  }
+
+
+  /*
+   * This method scans the bad job array and
+   * checks if the job number passed already exists
+   * in the array.
+   *
+   * @param int jobNum==> the job number we are searching for
+   * @return true  ==> If the job number exists in the array
+   * @return false ==> If the job number doesn't exists in the array
+   * */
+  private boolean isBadJob(int jobRefNum){
+    if(badJobs.contains(jobRefNum)) return true;
+    return false;
   }
 
   //endregion
