@@ -33,5 +33,7 @@ public class Job {
         return timeStamp;
     }
 
-
+    public String toString(){
+       return " [ " + this.jobNum + " : " + this.jobPageRef + " ]";
+    }
 }
