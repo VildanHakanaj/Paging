@@ -2,7 +2,19 @@ import java.io.*;
 import java.util.*;
 
 public class Paging {
-
+/*
+*
+*
+*
+*
+*
+*
+* // TODO: 2018-11-22 [ ] Create a class of memory and have the memory be a object
+* // TODO: 2018-11-22 [ ] Add the methods to be inside the memory and we can use that much easier
+* // TODO: 2018-11-22 [ ] Have classes for the checks to better benefit the efficency.
+*
+*
+* */
   //region Variable declaration.
 
   //region CSV file
@@ -83,7 +95,7 @@ public class Paging {
     }
   }
 
-  // TODO: 2018-11-21 [ ] Add an array to keep track of the bad jobs
+  // TODO: 2018-11-21 [x] Add an array to keep track of the bad jobs
   private void pageAlgorithm(){
     resetVar();                                                             //Restore the variables for the algorithm
     while(jobs.size() > 0) {                                                 //Loop through the jobs retrieved from the csv file
@@ -277,22 +289,22 @@ public class Paging {
     Job leastRecent = physicalMemory[0];                                          //Get the first job in the physical memory;
     int physicalIndex = 0;                                                        //The index of the lru job
     int empty = findEmptySpot(swapMem);                                           //Get the empty position in the swap space if the is one
-
     if(empty >= 0){                                                               //Check if the swap has room
       for (int i = 1; i < physicalMemory.length; i++) {                           //Scan the physical memory to find the least recent one
-
         //Find the least recent used one
         if(physicalMemory[i] != null && physicalMemory[i].getTimeStamp() < leastRecent.getTimeStamp()){
-
+//            physicalMemory.
           leastRecent = physicalMemory[i];      //Store it in a variable
           physicalIndex = i;                    //Get the position of that job
         }
       }
+      clock++;
       //Swap the jobs
       swapMem[empty] = physicalMemory[physicalIndex];
       physicalMemory[physicalIndex] = swapMem[swapIndex];
       System.out.println("Swapping just happen");
     }else{
+      clock++;
       System.out.println("There is no empty spots in the swap memory for the swap to happen!!!");
       deleteAll(swapMem[swapIndex].getJobNum());
       System.out.println("Deleting job: " + currentJob.toString());
