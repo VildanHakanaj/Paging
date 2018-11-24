@@ -3,7 +3,15 @@ import java.util.Arrays;
 public class Memory implements IMemory{
 
   public Job[] array;
+  private int count;
 
+  public int getCount() {
+    return count;
+  }
+
+  public void setCount(int count) {
+    this.count = count;
+  }
 
   public Memory(int size){
     //Start the array to size
@@ -96,6 +104,7 @@ public class Memory implements IMemory{
 
   /*
   * Insert the Job into the given position
+  * increments the count of the array
   *
   * @param Job job   ==> The job to be inserted
   * @param int index ==> The position we want to insert it
@@ -105,5 +114,26 @@ public class Memory implements IMemory{
   @Override
   public void insert(Job job, int index) {
     array[index] = job;
+    count++;
   }
-}
+
+  @Override
+  public boolean isEmpty(){
+    for (int i = 0; i < array.length; i++) {
+      if(array[i] != null){
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public boolean isFull(){
+    for (int i = 0; i < array.length; i++) {
+      if(array[i] == null){
+        return false;
+      }
+    }
+    return true;
+  }
+
+  }

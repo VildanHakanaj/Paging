@@ -6,4 +6,5 @@ public interface IMemory {
   void insert(Job job, int index);
   Job get(int index);
   void updateTime(int index, int clock);
+  boolean isEmpty();
 }
