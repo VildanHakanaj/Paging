@@ -83,15 +83,19 @@ public class Paging {
     }
   }
 
-  // TODO: 2018-11-21 [x] Add an array to keep track of the bad jobs
+  /*
+   * This is the core of the simulation.
+   * Loops through the jobs array
+   * and runs each job through the algorithm
+   * */
   private void pageAlgorithm(){
     resetVar();                                                             //Restore the variables for the algorithm
-    while(jobs.size() > 0) {                                                 //Loop through the jobs retrieved from the csv file
+    while(jobs.size() > 0) {                                                //Loop through the jobs retrieved from the csv file
 
       currentJob = jobs.remove(0);                                   //Get the job from the array
 
       if (isBadJob(currentJob.getJobNum())) {                                 //Check if the job has been deleted already.
-
+        clock++;
         System.out.println("Job: " + currentJob.getJobNum() + " is a bad job so it will not be processed");
 
       } else if (currentJob.getJobPageRef() == TERMINATE) {                   //Check if the page is terminated
@@ -100,6 +104,7 @@ public class Paging {
 
         //Also adds the number to the bad jobs array
         delete(currentJob.getJobNum());
+
         clock++;
 
       } else if (pageHit()) {                                                 //Check if the page already exists
@@ -116,31 +121,44 @@ public class Paging {
 
           System.out.println("The job " + currentJob.toString() + " is in swap memory");
           pageFaults++;
-          lru(swapIndex);                                                    //Find the least recent used and swap it with the swap position.
+          swapAlgorithm(swapIndex, 0);                                                    //Find the least recent used and swap it with the swap position.
         } else {                                                             //Its not in swap memory so try and swap the least recent out.
           int physicalIndex = physical.getEmptySpot();                       //Find an empty spot in the physical memory
           if (physicalIndex >= 0) {                                          //Check if there is any spot
+
             clock++;
+
             firstLoad++;                                                     //The job is loaded for the first time
+
             currentJob.setTimeStamp(clock);
+
             physical.insert(currentJob, physicalIndex);                      //Add the job in the physical memory
+
             System.out.println("Just placed Job " + currentJob.toString() + " into physical memory");
+
           } else {                                                           //Else check the swap memory
+
             firstLoad++;
+
             swapIndex = swap.getEmptySpot();                              //Find a spot in swap memory
+
             if (swapIndex >= 0) {                                            //There is an empty spot in swap memory.
 
               clock++;
+
               currentJob.setTimeStamp(clock);
+
               swap.insert(currentJob, swapIndex);
+
               System.out.println("Just inserted the job " + currentJob.toString() + " into swap memory");
 
             } else {                                                        //There is no room for the job so insufficient memory
 
               clock++;
-              delete(currentJob.getJobNum());
-              System.out.println("Error: Memory insufficient for Job: " + currentJob.toString());
 
+              delete(currentJob.getJobNum());
+
+              System.out.println("Error: Memory insufficient for Job: " + currentJob.toString());
             }
           }
         }
@@ -152,8 +170,9 @@ public class Paging {
             "Page Faults: " + pageFaults + "\n" +
             "Page first loaded: "  + firstLoad + "\n" +
             "Failed Jobs: " + badJobs.size());
-
   }
+
+
   //endregion
 
   //region Algorithms
@@ -168,25 +187,33 @@ public class Paging {
    * the jobs
    *
    * @param int swapIndex ==> the index to indicate where the job was found.
+   * @param int type      ==> Decides which type of algorithm to use.
    * @return void
    * */
 
-  private void lru(int swapIndex){
+
+  private void swapAlgorithm(int swapIndex, int type){
 
     Job leastRecent = physical.get(0);                                          //Get the first job in the physical memory;
     int physicalIndex = 0;                                                      //The index of the lru job
 
     int empty = swap.getEmptySpot();                                           //Get the empty position in the swap space if the is one
 
-    if(empty >= 0){                                                               //Check if the swap has room
+    if(empty >= 0){                                                            //Check if the swap has room
+      if(type == 0) { //Do the lru swap
+        for (int i = 1; i < PHYSICAL_MEMORY_SIZE; i++) {                         //Scan the physical memory to find the least recent one
 
-      for (int i = 1; i < PHYSICAL_MEMORY_SIZE; i++) {                           //Scan the physical memory to find the least recent one
-        //Find the least recent used one
-        if(physical.get(i) != null && physical.get(i).getTimeStamp() < leastRecent.getTimeStamp()){
+          //Find the least recent used one
+          if (physical.get(i) != null && physical.get(i).getTimeStamp() < leastRecent.getTimeStamp()) {
 
-          leastRecent = physical.get(i);      //Store it in a variable
-          physicalIndex = i;                    //Get the position of that job
+            leastRecent = physical.get(i);        //Store it in a variable
+
+            physicalIndex = i;                    //Get the position of that job
+
+          }
         }
+      }else{    //Do the random swap.
+
       }
 
       clock++;                                  //Update the clock
@@ -204,6 +231,23 @@ public class Paging {
       System.out.println("Deleting job: " + currentJob.toString());
     }
   }
+
+  /*
+   * This method will first check if there is
+   * empty spots in the swap memory to swap the
+   * physical job into it
+   * if there it it places the job from physical to swap memory
+   * and moves the swap job to the physical one
+   *
+   * if there is no room in swap than it kills
+   * the jobs
+   *
+   * @param int swapIndex ==> the index to indicate where the job was found.
+   * @return void
+   * */
+  private void randomSwap(){
+
+  }
   //endregion
 
   //region Helper Methods
@@ -211,6 +255,8 @@ public class Paging {
    * Reinitialize the variables
    * for each algorithm
    * */
+
+
   private void resetVar(){
     this.pageHits = 0;
     this.clock = 0;
@@ -227,12 +273,12 @@ public class Paging {
    * @return false ==> if the page doesn't exits;
    * */
   private boolean pageHit(){
-      int index = physical.find(currentJob.getJobPageRef());
-      if (index >= 0) {
-        clock++;                                                    //Update the clock
-        physical.updateTime(index, clock);
-        return true;
-      }
+    int index = physical.find(currentJob.getJobPageRef());
+    if (index >= 0) {
+      clock++;                                                    //Update the clock
+      physical.updateTime(index, clock);
+      return true;
+    }
     return false;
   }
 
