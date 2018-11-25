@@ -29,10 +29,12 @@ public class Paging {
   private final int PHYSICAL_MEMORY_SIZE = 10;        //The size of the array
   private final int SWAP_MEMORY_SIZE = 15;            //The size of the array
   private String DELIMITER = ",";                     //Divide the string with the ,
+  private int chooice;
   //endregion
 
-  public Paging() {
+  public Paging(int chooice) {
     resetVar();
+    this.chooice = chooice;
     this.swap = new Memory(SWAP_MEMORY_SIZE);
     this.physical = new Memory(PHYSICAL_MEMORY_SIZE);
   }
@@ -195,8 +197,6 @@ public class Paging {
             "Page first loaded: "  + firstLoad + "\n" +
             "Failed Jobs: " + badJobs.size());
   }
-
-
   //endregion
 
   //region Algorithms
@@ -225,23 +225,13 @@ public class Paging {
     int empty = swap.getEmptySpot();
     // FIXME: 2018-11-23 [ ] Check if the physical is full before using the algorithm.
     //Check if the swap has room
-    if(){
-
-    }
     if(empty >= 0){
-
-      if(type == 0) {
-        //Do the lru swap...
-      }else{
-        //Do the random swap...
-      }
-
       //Update the clock
       clock++;
 
       System.out.println("Just swapped " + physical.get(physicalIndex).toString() + " With " + swap.get(swapIndex).toString());
       //Swap the jobs
-
+      lru();
       //Insert the job into the empty spot
       swap.insert(physical.get(physicalIndex), empty);
 
@@ -298,17 +288,17 @@ public class Paging {
    * @param int swapIndex ==> the index to indicate where the job was found.
    * @return void
    * */
-  private int RandomSwap(){
-
-    Random rnd = new Random();
-    if(!physical.isEmpty()){
-      int index = rnd.nextInt();
-      do{
-        physical.get(index);
-      }while(physical.get(index) == null);
-      return index;
-    }
-  }
+//  private int RandomSwap(){
+//
+//    Random rnd = new Random();
+//    if(!physical.isEmpty()){
+//      int index = rnd.nextInt();
+//      do{
+//        physical.get(index);
+//      }while(physical.get(index) == null);
+//      return index;
+//    }
+//  }
   //endregion
 
   //region Helper Methods
