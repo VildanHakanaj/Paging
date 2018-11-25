@@ -88,7 +88,9 @@ public class Paging {
   /*
    * This is the core of the simulation.
    * Loops through the jobs array
-   * and runs each job through the algorithm
+   * and runs each job through each check
+   * i have placed
+   *
    * */
   private void pageAlgorithm(){
     //Restore the variables for the algorithm
@@ -126,7 +128,7 @@ public class Paging {
         //Else check if its in swap
       } else {
 
-        //Find if job is in swap memory already
+        //Find if the job is in swap memory already
         int swapIndex = swap.find(currentJob.getJobPageRef());
 
         //The job is in swap memory
@@ -134,7 +136,7 @@ public class Paging {
 
           System.out.println("The job " + currentJob.toString() + " is in swap memory");
           pageFaults++;
-          //Exectue the appropriate alogrithm
+          //Exectue the appropriate algorithm
           swapAlgorithm(swapIndex, 0);
           //Its not in swap memory so try and swap the least recent out.
         } else {
@@ -211,10 +213,9 @@ public class Paging {
    * the jobs
    *
    * @param int swapIndex ==> the index to indicate where the job was found.
-   * @param int type      ==> Decides which type of algorithm to use.
+   * @param int type      ==> an integer value for deciding what type of algorithm to use.
    * @return void
    * */
-
 
   private void swapAlgorithm(int swapIndex, int type){
 
@@ -228,7 +229,27 @@ public class Paging {
     if(empty >= 0){
       //Update the clock
       clock++;
+      //Check if there is any room in the physical to just place the job there
 
+      //There is no room
+      if(physical.getCount() == PHYSICAL_MEMORY_SIZE){
+
+        if(type == 0){
+          physicalIndex = lru();
+        }else{
+
+        }
+
+      }else{ //There is room
+        //Get the empty spot
+        physicalIndex = physical.getEmptySpot();
+
+        //Insert the job
+        physical.insert(swap.get(swapIndex), physicalIndex);
+
+        //Remove the job from swap
+        swap.remove(swapIndex);
+      }
       System.out.println("Just swapped " + physical.get(physicalIndex).toString() + " With " + swap.get(swapIndex).toString());
       //Swap the jobs
       lru();
@@ -249,7 +270,13 @@ public class Paging {
     }
   }
 
-
+  /*
+  * LRU method will find the least recent used
+  * and return the index of it.
+  *
+  * @return i   ==> The index of the lru
+  * @return -1  ==> if something went wrong;
+  * */
   private int lru(){
     //Get the first job
     Job leastRecent = physical.get(0);
@@ -258,7 +285,7 @@ public class Paging {
     for (int i = 1; i < PHYSICAL_MEMORY_SIZE; i++) {
 
       //Find the least recent used one
-      if (physical.get(i) != null && physical.get(i).getTimeStamp() < leastRecent.getTimeStamp()) {
+      if (physical.get(i) != null && physical.get(i).getTimeStamp() <= leastRecent.getTimeStamp()) {
 
         //Store it in a variable
         leastRecent = physical.get(i);
@@ -315,6 +342,17 @@ public class Paging {
     this.firstLoad = 0;
     this.pageFaults = 0;
   }
+// TODO: 2018-11-25 [ ] Find a way to make the swap based on the algo
+  /*
+  * This method will swap the two jobs
+  *
+  * @param int physicalIndex  ==> the index where the job is in physical
+  * @param int swapIndex      ==> The index where the job is in swap
+  * */
+//  private void swap(int physicalIndex, int swapIndex, ){
+//
+//  }
+//
 
   /*
    * Scans the physical array

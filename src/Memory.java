@@ -63,7 +63,6 @@ public class Memory implements IMemory{
   /*
    * Scans the array and finds an empty spot.
    *
-   * @param Job[] array ==> The array to look in
    * @return i    ==> the index where the spot is free
    * @return -1   ==> If there is no space in the array;
    * */
@@ -79,7 +78,7 @@ public class Memory implements IMemory{
   }
 
   /*
-   * Will loop through the array and will find if any
+   * Scans the array and will find if any
    * references of the jobs exist and will delete them from it.
    *
    * @param id ==> The job number
@@ -117,16 +116,21 @@ public class Memory implements IMemory{
     count++;
   }
 
+  /*
+  * Removes the give job from the index;
+  * @param index ==> The index of the job in the array
+  * */
   @Override
-  public boolean isEmpty(){
-    for (int i = 0; i < array.length; i++) {
-      if(array[i] != null){
-        return false;
-      }
-    }
-    return true;
+  public void remove(int index) {
+    array[index] = null;
   }
 
+  /*
+  * Scans the array and find if the array is full or not
+  *
+  * @return true  ==> if the array is full
+  * @return false ==> if the array is not full
+  * */
   public boolean isFull(){
     for (int i = 0; i < array.length; i++) {
       if(array[i] == null){
