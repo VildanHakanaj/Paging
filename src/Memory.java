@@ -2,7 +2,7 @@ import java.util.Arrays;
 
 public class Memory implements IMemory{
 
-  public Job[] array;
+  private Job[] array;
   private int count;
 
   public int getCount() {
