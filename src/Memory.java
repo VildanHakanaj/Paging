@@ -2,6 +2,7 @@ import java.util.Arrays;
 
 public class Memory implements IMemory{
 
+  // TODO: 2018-11-28 [ ] Change the memory to abstract and make the physical and the
   private Job[] array;
   private int count;
 

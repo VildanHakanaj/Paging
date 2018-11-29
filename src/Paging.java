@@ -4,7 +4,7 @@ import java.util.*;
 public class Paging {
   //region Variable declaration.
   //region CSV file
-  private String filePath = "data/job_data_5.csv";    //The path to the file
+  private String filePath = "data/job_data_4.csv";    //The path to the file
   private ArrayList<Job> jobs = new ArrayList<>();    //Contains the jobs we get from the csv file
 
   //endregion
@@ -20,6 +20,8 @@ public class Paging {
   private int pageHits;                               //Number of page hits
   private int firstLoad;                              //Counter for the first loaded pages
   private int pageFaults;                             //Counter for the job that are found in swap.
+  private int completed;
+  private int failed;
   private ArrayList<Integer> badJobs = new ArrayList<>(); //Contains all the jobs that have been terminated.
   private int choice;
   //endregion
@@ -111,6 +113,9 @@ public class Paging {
 
       currentJob = jobs.remove(0);      //Get the job from the array
 
+      if(currentJob.getJobPageRef() == 1011){
+        System.out.println("");
+      }
 
       //Check if the job has been deleted already.
       if (isBadJob(currentJob.getJobNum())) {
@@ -124,7 +129,7 @@ public class Paging {
         System.out.println("Just deleted the job with Number: " + currentJob.getJobNum());
 
         //Also adds the number to the bad jobs array
-
+        completed++;
         delete(currentJob.getJobNum());
 
         clock++;
@@ -150,8 +155,7 @@ public class Paging {
         } else {
 
 
-          //Check if there is any spot
-          if (!physical.isFull()) {
+          if (!physical.isFull()) {          //Check if there is any spot
 
             //Get the empty spot of the physical
             physicalIndex = physical.getEmptySpot();
@@ -168,34 +172,40 @@ public class Paging {
 
             System.out.println("Just placed Job " + currentJob.toString() + " into physical memory");
 
-            //Else check the swap memory
           } else {
+            // TODO: 2018-11-28 [ ] If there is no room in physical then move a job into swap
 
-
-
-            //There is an empty spot in swap memory.
+//            //There is an empty spot in swap memory.
             if (!swap.isFull()) {
-              //Find a spot in swap memory
-              swapIndex = swap.getEmptySpot();
-
-              firstLoad++;
-
               clock++;
+              firstLoad++;
+              physicalIndex = lru();
+              int emptySpot = swap.getEmptySpot();
+              swap(emptySpot,physicalIndex, swap, physical);
+              currentJob.setTimeStamp(clock);
+              physical.insert(currentJob, physicalIndex);
 
-              currentJob.setTimeStamp(clock); //Update the time before inserting
-
-              swap.insert(currentJob, swapIndex);
-
-              System.out.println("Just inserted the job " + currentJob.toString() + " into swap memory");
-
-              //There is no room for the job so insufficient memory
+//              Find a spot in swap memory
+//              swapIndex = swap.getEmptySpot();
+//
+//              firstLoad++;
+//
+//              clock++;
+//
+//              currentJob.setTimeStamp(clock); //Update the time before inserting
+//
+//              swap.insert(currentJob, swapIndex);
+//
+//              System.out.println("Just inserted the job " + currentJob.toString() + " into swap memory");
+//
+//              //There is no room for the job so insufficient memory
             } else {
 
               clock++;
 
               //Delete the job because there is no more room
+              failed++;
               delete(currentJob.getJobNum());
-
               System.out.println("Error: Memory insufficient for Job: " + currentJob.toString());
             }
           }
@@ -203,7 +213,7 @@ public class Paging {
       }
     }
     //Print the results after the simulation is over
-    System.out.println();
+    System.out.println(printStats());
   }
   //endregion
 
@@ -231,7 +241,7 @@ public class Paging {
 
       System.out.println("Just moved " + swap.get(swapIndex).toString() + "from swap to physical memory");      //Print what job moved
       emptyIndex = physical.getEmptySpot();                         //Get the empty spot
-      swap(emptyIndex, swapIndex);                                  //Insert the job into physical
+      swap(emptyIndex, swapIndex, physical, swap);                                  //Insert the job into physical
 
     }else if(!swap.isFull()){
 
@@ -244,6 +254,7 @@ public class Paging {
       }else{
 
         physicalIndex = RandomSwap();                               //Get the index of the random physical
+
       }
       //Print what jobs was switched
       System.out.println("Just swapped " + physical.get(physicalIndex).toString() + " With " + swap.get(swapIndex).toString());
@@ -251,12 +262,15 @@ public class Paging {
       swap(emptyIndex, physicalIndex, swapIndex);                   //Swap the jobs.
 
     }else{
-      clock++;
 
+      clock++;
       //kill the job if no room for swapp
       System.out.println("There is no empty spots in the swap memory for the swap to happen!!!");
+
+      failed++;
+      badJobs.add(currentJob.getJobNum());
+
       delete(currentJob.getJobNum());
-      System.out.println("Deleting job: " + currentJob.toString());
     }
   }
 
@@ -277,7 +291,6 @@ public class Paging {
     for (int i = 0; i < PHYSICAL_MEMORY_SIZE; i++) {                          //Scan the physical memory to find the least recent one
 
       if (physical.get(i) != null && physical.get(i).getTimeStamp() <= leastRecent.getTimeStamp()) {      //Find the least recent used one
-
         leastRecent = physical.get(i);                                        //Store it in a variable
 
         pos = i;                                                              //Get the position of that job
@@ -336,11 +349,13 @@ public class Paging {
    * This method will swap if there is room in the physical memory;
    *
    * @param int emptyIndex ==> The empty spot in the physical memory
+   * @param Memory memory1 ==> Is the memory i want to insert into
+   * @param Memory memory2 ==> Is the memory i want to get from
    * @param swapIndex      ==> The index where the job is in swap
    * */
-  private void swap(int emptyIndex, int swapIndex){
-    physical.insert(swap.get(swapIndex), emptyIndex);
-    swap.remove(swapIndex);
+  private void swap(int emptyIndex, int jobIndex, Memory memory1, Memory memory2){
+    memory1.insert(memory2.get(jobIndex), emptyIndex);
+    memory2.remove(jobIndex);
   }
 
 
@@ -385,7 +400,7 @@ public class Paging {
   private void delete(int jobNumber){
     swap.deleteAll(jobNumber);
     physical.deleteAll(jobNumber);
-    badJobs.add(jobNumber);
+    // TODO: 2018-11-28 Add deleted job seperate
   }
 
   /*
@@ -397,7 +412,8 @@ public class Paging {
             "Page Hit: " + pageHits + "\n" +
             "Page Faults: " + pageFaults + "\n" +
             "Page first loaded: " + firstLoad + "\n" +
-            "Failed Jobs: " + badJobs.size();
+            "Page Failed: " + failed + "\n" +
+            "Page completed: " + completed + "\n";
   }
   //endregion
 }
