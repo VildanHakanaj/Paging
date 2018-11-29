@@ -5,14 +5,6 @@ public class Memory implements IMemory{
   private Job[] array;
   private int count;
 
-  public int getCount() {
-    return count;
-  }
-
-  public void setCount(int count) {
-    this.count = count;
-  }
-
   public Memory(int size){
     //Start the array to size
     array = new Job[size];
