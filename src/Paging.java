@@ -71,7 +71,7 @@ public class Paging {
 
     for (int i = 0; i < FILE_COUNT; i++) {                        //Run all the files through
 
-      jobs = new ArrayList<>();
+      jobs = new ArrayList<>();                                   //Reset the jobs array for the new data set
       filePath = String.format("data/job_data_%s.csv", i + 1);    //Get all the file names given
       retriveJobs(filePath);                                      //Get the jobs out of the file
 
@@ -435,6 +435,13 @@ public class Paging {
     swap.emptyAll();
     physical.emptyAll();
   }
+
+  /*
+  * This method will print the memory layout of the
+  * both of the memories
+  *
+  * @return void
+  * */
   private void printMemory(){
     physical.printMemory();
     System.out.println("\n");
