@@ -21,6 +21,11 @@
 |   Subroutines/libraries required:
 |       No Subroutines/libraries utilized outside of Java.util.*
 |
+|   References: The memberwise methods used in the Job and Paging classes were taken from the lab2 assignment
+|               Joshua Croft: Originally coded the methods.
+|
+|
+|
 ======================================================================================================================*/
 
 import java.io.*;
@@ -80,6 +85,7 @@ public class Paging {
       printMemory();
       emptyMemory();
 
+
       //Random
       pageAlgorithm(memberwiseCloneJobList(jobs), RANDOM);
       printMemory();
@@ -133,7 +139,7 @@ public class Paging {
     resetVar();                                                  //Restore the variables for the algorithm
 
     int physicalIndex, emptySpot, swapIndex, jobNumber, jobReference;
-    String dash = "-";
+    String dash = "#";
     for (int i = 0; i < 200; i++){ System.out.print(dash); }
 
     while(data.size() > 0) {                                     //Loop through the jobs retrieved from the csv file
@@ -193,7 +199,7 @@ public class Paging {
 
               emptySpot = swap.getEmptySpot();                    //Get the empty spot in the swap
 
-              swap(emptySpot,physicalIndex, swap, physical);      //Swap the job
+              swap(emptySpot,physicalIndex, swap, physical);      //Swap the job from the physical
 
               this.currentJob.setTimeStamp(clock);                //Update the timestamp
 
@@ -296,8 +302,10 @@ public class Paging {
         leastRecent = physical.get(i);                                        //Store it in a variable
 
         pos = i;                                                              //Get the position of that job
+
       }
     }
+
     return pos;
   }
 
@@ -344,7 +352,6 @@ public class Paging {
    * */
   private void swap(int emptyIndex, int physicalIndex, int swapIndex){
     swap.insert(physical.get(physicalIndex), emptyIndex);    //Insert the physical job in swap
-
     physical.insert(swap.get(swapIndex), physicalIndex);    //Insert the swap job into physical
     swap.remove(swapIndex);                                 //Delete the instance of the swap job from swap
 
@@ -410,6 +417,12 @@ public class Paging {
     physical.deleteAll(jobNumber);
   }
 
+  /*
+  * This method will make a deep copy of all the jobs
+  *
+  * @param jobs             ==> The job array to copy from
+  * @return ArrayList<Job>  ==> Returns the new job array.
+  * */
   private ArrayList<Job> memberwiseCloneJobList(ArrayList<Job> jobs) {
     ArrayList<Job> clones = new ArrayList<>();
     for (int i = 0; i < jobs.size(); i++) {

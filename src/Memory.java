@@ -35,9 +35,7 @@ public class Memory implements IMemory{
    * @return Job ==> return the object in the array
    * */
   @Override
-  public Job get(int index){
-    return array[index];
-  }
+  public Job get(int index){ return array[index]; }
 
   /*
    * This method will go and find
