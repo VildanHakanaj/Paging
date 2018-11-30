@@ -14,6 +14,9 @@
 |   Subroutines/libraries required:
 |       No Subroutines/libraries utilized outside of Java.util.*
 |
+|   References: The memberwise methods used in the Job and Paging classes were taken from the lab2 assignment
+|               Joshua Croft: Originally coded the methods.
+|
 ======================================================================================================================*/
 public class Job {
     private int jobNum;
