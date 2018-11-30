@@ -1,3 +1,20 @@
+/*======================================================================================================================
+|   Simulation of a paging system and the LRU and RANDOM algorithm for swaping mechanism
+|
+|   Name:           Job
+|
+|   Written by:     Vildan Hakanaj - November 2018
+|
+|   Written for:    COIS 3320 (Prof. Jacques Beland)Lab 3 Trent University Fall 2018.
+|
+|   Purpose:        To represent the jobs/Pages being run from the algorithm
+|
+|   usage:          Used by Paging Class
+|
+|   Subroutines/libraries required:
+|       No Subroutines/libraries utilized outside of Java.util.*
+|
+======================================================================================================================*/
 public class Job {
     private int jobNum;
     private int jobPageRef;
@@ -34,6 +51,10 @@ public class Job {
     }
 
     public String toString(){
-       return "|" + this.jobNum + " : " + this.jobPageRef + "|";
+       return "{" + this.jobNum + " : " + this.jobPageRef + "}";
+    }
+
+    public Job memberwiseClone() {
+        return new Job(this.jobNum, this.jobPageRef);
     }
 }

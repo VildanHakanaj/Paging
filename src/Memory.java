@@ -1,3 +1,20 @@
+/*======================================================================================================================
+|   Simulation of a paging system and the LRU and RANDOM algorithm for swaping mechanism
+|
+|   Name:           Memory --> Class
+|
+|   Written by:     Vildan Hakanaj - November 2018
+|
+|   Written for:    COIS 3320 (Prof. Jacques Beland)Lab 3 Trent University Fall 2018.
+|
+|   Purpose:        To represent the memory used to store the jobs.
+|
+|   usage:          Used by paging
+|
+|   Subroutines/libraries required:
+|       Uses the IMemory Interface that i have create to contain all the subroutines used from this class
+|
+======================================================================================================================*/
 import java.util.Arrays;
 
 public class Memory implements IMemory{
@@ -12,11 +29,11 @@ public class Memory implements IMemory{
   }
 
   /*
-  * This method will retrive the object out of the array
-  *
-  * @param int index ==> the position where to grab it from
-  * @return Job ==> return the object in the array
-  * */
+   * This method will retrive the object out of the array
+   *
+   * @param int index ==> the position where to grab it from
+   * @return Job ==> return the object in the array
+   * */
   @Override
   public Job get(int index){
     return array[index];
@@ -87,22 +104,22 @@ public class Memory implements IMemory{
   }
 
   /*
-  * Prints the array showing if they are full or null
-  * */
+   * Prints the array showing if they are full or null
+   * */
   @Override
   public void printMemory() {
     System.out.println(Arrays.toString(array));
   }
 
   /*
-  * Insert the Job into the given position
-  * increments the count of the array
-  *
-  * @param Job job   ==> The job to be inserted
-  * @param int index ==> The position we want to insert it
-  *
-  * @return void
-  * */
+   * Insert the Job into the given position
+   * increments the count of the array
+   *
+   * @param Job job   ==> The job to be inserted
+   * @param int index ==> The position we want to insert it
+   *
+   * @return void
+   * */
   @Override
   public void insert(Job job, int index) {
     array[index] = job;
@@ -110,20 +127,18 @@ public class Memory implements IMemory{
   }
 
   /*
-  * Removes the give job from the index;
-  * @param index ==> The index of the job in the array
-  * */
+   * Removes the give job from the index;
+   * @param index ==> The index of the job in the array
+   * */
   @Override
-  public void remove(int index) {
-    array[index] = null;
-  }
+  public void remove(int index) { array[index] = null; }
 
   /*
-  * Scans the array and find if the array is full or not
-  *
-  * @return true  ==> if the array is full
-  * @return false ==> if the array is not full
-  * */
+   * Scans the array and find if the array is full or not
+   *
+   * @return true  ==> if the array is full
+   * @return false ==> if the array is not full
+   * */
   public boolean isFull(){
     for (int i = 0; i < array.length; i++) {
       if(array[i] == null){
@@ -133,4 +148,14 @@ public class Memory implements IMemory{
     return true;
   }
 
+  /*
+  * This method will empty the array
+  * */
+  public void emptyAll(){
+    for (int i = 0; i < array.length; i++) {
+      if(array[i] != null){
+        array[i] = null;
+      }
+    }
   }
+}
