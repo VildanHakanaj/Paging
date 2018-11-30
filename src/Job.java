@@ -34,6 +34,6 @@ public class Job {
     }
 
     public String toString(){
-       return " [ " + this.jobNum + " : " + this.jobPageRef + " ]";
+       return "|" + this.jobNum + " : " + this.jobPageRef + "|";
     }
 }

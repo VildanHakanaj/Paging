@@ -1,5 +1,5 @@
 public interface IMemory {
-  int find(int reference);
+  int find(int reference, int jobNumber);
   int getEmptySpot();
   void deleteAll(int id);
   void printMemory();

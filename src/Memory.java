@@ -44,9 +44,9 @@ public class Memory implements IMemory{
    * @return -1 ==> if the page doesn't exits;
    * */
   @Override
-  public int find(int reference) {
+  public int find(int reference, int jobNumber) {
     for (int i = 0; i < array.length; i++) {
-      if(array[i] != null && array[i].getJobPageRef() == reference){
+      if(array[i] != null && array[i].getJobPageRef() == reference && array[i].getJobNum() == jobNumber){
         return i;
       }
     }
