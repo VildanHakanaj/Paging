@@ -19,7 +19,6 @@ import java.util.Arrays;
 
 public class Memory implements IMemory{
 
-  // TODO: 2018-11-28 [ ] Change the memory to abstract and make the physical and the
   private Job[] array;
   private int count;
 
@@ -137,6 +136,7 @@ public class Memory implements IMemory{
    * @return true  ==> if the array is full
    * @return false ==> if the array is not full
    * */
+  @Override
   public boolean isFull(){
     for (int i = 0; i < array.length; i++) {
       if(array[i] == null){
@@ -149,6 +149,7 @@ public class Memory implements IMemory{
   /*
   * This method will empty the array
   * */
+  @Override
   public void emptyAll(){
     for (int i = 0; i < array.length; i++) {
       if(array[i] != null){

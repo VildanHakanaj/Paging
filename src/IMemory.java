@@ -15,13 +15,11 @@
 |       No Subroutines/libraries utilized outside of Java.util.*
 |
 ======================================================================================================================*/
-public interface IMemory {
-  int find(int reference, int jobNumber);
-  int getEmptySpot();
+public interface IMemory extends IContainer {
   void deleteAll(int id);
-  void printMemory();
   void insert(Job job, int index);
-  Job get(int index);
+  void emptyAll();
   void updateTime(int index, int clock);
   void remove(int index);
+  void printMemory();   //Print the layout
 }

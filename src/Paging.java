@@ -27,7 +27,6 @@
 |
 |
 ======================================================================================================================*/
-
 import java.io.*;
 import java.util.*;
 
@@ -378,7 +377,7 @@ public class Paging {
    * @return false ==> if the page doesn't exits;
    * */
   private boolean pageHit(){
-    int index = physical.find(this.currentJob.getJobPageRef(), this.currentJob.getJobNum());//Check if the there exists in the physical alrady
+    int index = physical.find(this.currentJob.getJobPageRef(), this.currentJob.getJobNum());//Check if the there exists in the physical already
 
     if (index >= 0) {
 
@@ -432,7 +431,7 @@ public class Paging {
   }
 
   /*
-   * Print the stats.
+   * Print the results of the algorithm.
    * */
   private String printStats(int type){
     return "\n\nThe simulation results for file " + filePath + " are as follows: \n" +
@@ -444,6 +443,12 @@ public class Paging {
             "Page completed: " + completed + "\n";
   }
 
+  /*
+  * This will utilize the emptyAll from Memory class
+  * to clear all the memory spaces into null
+  *
+  * @return void
+  * */
   private void emptyMemory(){
     swap.emptyAll();
     physical.emptyAll();
