@@ -27,6 +27,7 @@
 |
 |
 ======================================================================================================================*/
+
 import java.io.*;
 import java.util.*;
 
@@ -58,7 +59,7 @@ public class Paging {
   private final int SWAP_MEMORY_SIZE = 15;      //The size of the array
   private String DELIMITER = ",";               //Divide the string with the ,
   //This two constants choose between two algorithms
-  private final int LRU =  1;
+  private final int LRU = 1;
   private final int RANDOM = 2;
   private final int FILE_COUNT = 6;             //Number of files to run
   //endregion
@@ -71,7 +72,7 @@ public class Paging {
   }
 
   //region Main Methods
-  public void runSimulation(){
+  public void runSimulation() {
 
     for (int i = 0; i < FILE_COUNT; i++) {                        //Run all the files through
 
@@ -91,11 +92,11 @@ public class Paging {
       emptyMemory();
     }
   }
-  private void retriveJobs(String filePath){
+
+  private void retriveJobs(String filePath) {
     //Buffer to read the file
     BufferedReader fileReader = null;
-    try
-    {
+    try {
       String line;      //Contains the line
 
       fileReader = new BufferedReader(new FileReader(filePath));      //Create the file reader
@@ -110,12 +111,9 @@ public class Paging {
 
         jobs.add(new Job(jobNum, jobPage));                           //Add a new point with the attributes from the file
       }
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       e.printStackTrace();
-    }
-    finally
-    {
+    } finally {
       try {
         fileReader.close();
       } catch (IOException e) {
@@ -133,15 +131,17 @@ public class Paging {
    * @param ArrayList<Job> jobs ==> All the jobs from the csv file
    * @param int type            ==> Defines what type of algorithm to be used
    * */
-  private void pageAlgorithm(ArrayList<Job> data, int type){
+  private void pageAlgorithm(ArrayList<Job> data, int type) {
 
     resetVar();                                                  //Restore the variables for the algorithm
 
     int physicalIndex, emptySpot, swapIndex, jobNumber, jobReference;
     String dash = "#";
-    for (int i = 0; i < 200; i++){ System.out.print(dash); }
+    for (int i = 0; i < 200; i++) {
+      System.out.print(dash);
+    }
 
-    while(data.size() > 0) {                                     //Loop through the jobs retrieved from the csv file
+    while (data.size() > 0) {                                     //Loop through the jobs retrieved from the csv file
 
       this.currentJob = data.remove(0);                  //Get the job from the array
 
@@ -166,7 +166,7 @@ public class Paging {
 
       } else {                                                  //Else check if its in swap
 
-        swapIndex = swap.find(jobReference, jobNumber);         //Find if the job is in swap memory already and get the index
+        swapIndex = swap.find(jobReference);         //Find if the job is in swap memory already and get the index
 
         if (swapIndex >= 0) {                                   //If index is higher than 0 means it exist already
 
@@ -198,7 +198,7 @@ public class Paging {
 
               emptySpot = swap.getEmptySpot();                    //Get the empty spot in the swap
 
-              swap(emptySpot,physicalIndex, swap, physical);      //Swap the job from the physical
+              swap(emptySpot, physicalIndex, swap, physical);      //Swap the job from the physical
 
               this.currentJob.setTimeStamp(clock);                //Update the timestamp
 
@@ -236,18 +236,18 @@ public class Paging {
    * @return void
    * */
 
-  private void swapAlgorithm(int swapIndex, int type){
+  private void swapAlgorithm(int swapIndex, int type) {
 
     int emptyIndex, physicalIndex;
 
-    if(!physical.isFull()){                                          //Check if the swap has room for swapping to happen
+    if (!physical.isFull()) {                                          //Check if the swap has room for swapping to happen
       pageFaults++;
 
       swap.updateTime(swapIndex, clock);
       emptyIndex = physical.getEmptySpot();                         //Get the empty spot
       swap(emptyIndex, swapIndex, physical, swap);                  //Insert the job into physical
 
-    }else if(!swap.isFull()){
+    } else if (!swap.isFull()) {
 
       pageFaults++;
 
@@ -255,11 +255,11 @@ public class Paging {
 
       clock++;                                                      //Update the clock
 
-      if(type == LRU){                                              //Check which method to run LRU or
+      if (type == LRU) {                                              //Check which method to run LRU or
 
         physicalIndex = lru();                                      //Get the index of the least recent one
 
-      }else{
+      } else {
 
         physicalIndex = RandomSwap();                                //Get the index of the random physical
 
@@ -269,7 +269,7 @@ public class Paging {
       swap.get(swapIndex).setTimeStamp(clock);
       swap(emptyIndex, physicalIndex, swapIndex);                    //Swap the jobs.
 
-    }else{                                                           //kill the job if no room for swap
+    } else {                                                           //kill the job if no room for swap
 
       clock++;
 
@@ -284,15 +284,14 @@ public class Paging {
   /*
    *
    * Assumptions: Im assuming that the array of physical is always going to be
-   *              full so i don't need to worry about null index
+   * full so i don't need to worry about null index
    *
    * LRU method will find the least recent used
    * and return the index of it.
    *
-   * @return i   ==> The index of the lru
    * @return -1  ==> if something went wrong;
-   * */
-  private int lru(){
+   */
+  private int lru() {
     Job leastRecent = physical.get(0);                                        //Get the first job
     int pos = 0;                                                              //Start from the beginning
     for (int i = 0; i < PHYSICAL_MEMORY_SIZE; i++) {                          //Scan the physical memory to find the least recent one
@@ -320,7 +319,7 @@ public class Paging {
    * @param int swapIndex ==> the index to indicate where the job was found.
    * @return void
    * */
-  private int RandomSwap(){
+  private int RandomSwap() {
     Random rnd = new Random();
     return rnd.nextInt(PHYSICAL_MEMORY_SIZE);
   }
@@ -331,13 +330,13 @@ public class Paging {
    * Reinitialize the variables
    * */
   private void resetVar() {
-    this.badJobs    = new ArrayList<>();
-    this.pageHits   = 0;
+    this.badJobs = new ArrayList<>();
+    this.pageHits = 0;
     this.pageFaults = 0;
-    this.completed  = 0;
-    this.firstLoad  = 0;
-    this.failed     = 0;
-    this.clock      = 0;
+    this.completed = 0;
+    this.firstLoad = 0;
+    this.failed = 0;
+    this.clock = 0;
     this.currentJob = null;
   }
 
@@ -349,7 +348,7 @@ public class Paging {
    * @param int swapIndex      ==> The index where the job is in swap
    * @param int emptyIndex     ==> The spot in the swap memory
    * */
-  private void swap(int emptyIndex, int physicalIndex, int swapIndex){
+  private void swap(int emptyIndex, int physicalIndex, int swapIndex) {
     swap.insert(physical.get(physicalIndex), emptyIndex);    //Insert the physical job in swap
     physical.insert(swap.get(swapIndex), physicalIndex);    //Insert the swap job into physical
     swap.remove(swapIndex);                                 //Delete the instance of the swap job from swap
@@ -364,7 +363,7 @@ public class Paging {
    * @param Memory memory2 ==> Is the memory i want to get from
    * @param swapIndex      ==> The index where the job is in swap
    * */
-  private void swap(int emptyIndex,  int jobIndex, Memory memory1, Memory memory2){
+  private void swap(int emptyIndex, int jobIndex, Memory memory1, Memory memory2) {
     memory1.insert(memory2.get(jobIndex), emptyIndex);
     memory2.remove(jobIndex);
   }
@@ -376,8 +375,8 @@ public class Paging {
    * @return true  ==> if the page already is there
    * @return false ==> if the page doesn't exits;
    * */
-  private boolean pageHit(){
-    int index = physical.find(this.currentJob.getJobPageRef(), this.currentJob.getJobNum());//Check if the there exists in the physical already
+  private boolean pageHit() {
+    int index = physical.find(this.currentJob.getJobPageRef());//Check if the there exists in the physical already
 
     if (index >= 0) {
 
@@ -399,8 +398,8 @@ public class Paging {
    * @return true  ==> If the job number exists in the array
    * @return false ==> If the job number doesn't exists in the array
    * */
-  private boolean isBadJob(int jobRefNum){
-    if(badJobs.contains(jobRefNum)) return true;
+  private boolean isBadJob(int jobRefNum) {
+    if (badJobs.contains(jobRefNum)) return true;
     return false;
   }
 
@@ -411,17 +410,17 @@ public class Paging {
    * @param int jobNumber ==> The job number to be deleted
    * @return void
    * */
-  private void delete(int jobNumber){
+  private void delete(int jobNumber) {
     swap.deleteAll(jobNumber);
     physical.deleteAll(jobNumber);
   }
 
   /*
-  * This method will make a deep copy of all the jobs
-  *
-  * @param jobs             ==> The job array to copy from
-  * @return ArrayList<Job>  ==> Returns the new job array.
-  * */
+   * This method will make a deep copy of all the jobs
+   *
+   * @param jobs             ==> The job array to copy from
+   * @return ArrayList<Job>  ==> Returns the new job array.
+   * */
   private ArrayList<Job> memberwiseCloneJobList(ArrayList<Job> jobs) {
     ArrayList<Job> clones = new ArrayList<>();
     for (int i = 0; i < jobs.size(); i++) {
@@ -431,10 +430,10 @@ public class Paging {
   }
 
   /*
-   * Print the results of the algorithm.
+   * Print the results of the algorithm
    * */
-  private String printStats(int type){
-    return "\n\nThe simulation results for file " + filePath + " are as follows: \n" +
+  private String printStats(int type) {
+    return "\n\nThe simulation results for file" + filePath +  " are as follows: \n" +
             "Algorithm Type: " + (type == 1 ? "Least Recent Used" : "Random") + "\n" +
             "Page Hit: " + pageHits + "\n" +
             "Page Faults: " + pageFaults + "\n" +
@@ -444,23 +443,23 @@ public class Paging {
   }
 
   /*
-  * This will utilize the emptyAll from Memory class
-  * to clear all the memory spaces into null
-  *
-  * @return void
-  * */
-  private void emptyMemory(){
+   * This will utilize the emptyAll from Memory class
+   * to clear all the memory spaces into null
+   *
+   * @return void
+   * */
+  private void emptyMemory() {
     swap.emptyAll();
     physical.emptyAll();
   }
 
   /*
-  * This method will print the memory layout of the
-  * both of the memories
-  *
-  * @return void
-  * */
-  private void printMemory(){
+   * This method will print the memory layout of the
+   * both of the memories
+   *
+   * @return void
+   * */
+  private void printMemory() {
     physical.printMemory();
     System.out.println("\n");
     swap.printMemory();
