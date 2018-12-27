@@ -1,5 +1,5 @@
 # Paging
-This program will simulate a paging algorithm using Least Recent Used and Random. Will perform  
+This program will simulate a paging algorithm using Least Recent Used and Random algorithms.This program will read the csv files that contain the paging characteristicts and will perform both algorithms, represent all the statistics for both random and LRU algorithms and will show a visual representation of the swap and physical memory after the simulation is finished.    
 
 ### What is Paging
 Paging is a method of writing data to, and reading it from, secondary storage for use in primary storage, also known as main memory. Paging plays a role in memory management for a computer's OS (operating system).
